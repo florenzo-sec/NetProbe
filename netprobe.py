@@ -1,5 +1,6 @@
 import socket
 from args import parse_ports,args
+import colorama
 
 for p in parse_ports(args()):
     
