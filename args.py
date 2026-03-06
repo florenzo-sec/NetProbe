@@ -4,6 +4,7 @@ def args():
     parser = argparse.ArgumentParser(description="Port scanner")
     parser.add_argument('host',help='The host you want to scan')
     parser.add_argument('-p','--port',help='Ports to scan (comma-separated or range: 22,80 or 22-443)', required=True)
+    parser.add_argument('-t','--threads',help='Max amount of threads to use', type=int, default=10)
     return vars(parser.parse_args())
 
 def parse_ports(ports_arg):
