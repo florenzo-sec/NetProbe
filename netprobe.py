@@ -1,9 +1,11 @@
 import socket
 from args import parse_ports,args
-import colorama
 from concurrent.futures import ThreadPoolExecutor
+import time
 
-colorama.init(autoreset=True) #set terminal colors autoreset
+start = time.time() #start timer
+
+stats = {}
 
 def port_scan(host,p):
     s = socket.socket(socket.AF_INET,socket.SOCK_STREAM) #socket generation
@@ -12,11 +14,18 @@ def port_scan(host,p):
     status = s.connect_ex((host,p))
 
     if status!=0: #port is open=0, else >0
-        print(f"[{colorama.Fore.RED}CLOSED{colorama.Fore.RESET}]\t{p}")
+        stats[p] = "CLOSE"
     else:
-        print(f"[{colorama.Fore.GREEN}OPEN{colorama.Fore.RESET}]\t{p}")
+        stats[p] = "OPEN"
     
     s.close()
+
+def output(stats):
+    for p in stats:
+        if stats[p]=="OPEN":
+            print(f"{p} [OPEN]")
+        else:
+            print(f"{p} [CLOSED]")
 
 arguments = args() # grab arguments from CLI
 
@@ -26,4 +35,10 @@ with ThreadPoolExecutor(max_workers=arguments['threads']) as executor:
     futures = [executor.submit(port_scan,arguments['host'],p) for p in parse_ports(arguments)]
     for future in futures:
         future.result()
+
+output(stats)
             
+end = time.time()-start
+
+
+print(f"Scan completed in {round(end,2)} seconds, {sum(1 for value in stats.values() if value=="OPEN")} open ports.")
