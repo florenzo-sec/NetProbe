@@ -3,9 +3,7 @@ from args import parse_ports,args
 from concurrent.futures import ThreadPoolExecutor
 import time
 
-start = time.time() #start timer
-
-stats = {}
+stats = {} # dict containing all of the port stats(open or closed)
 
 def port_scan(host,p):
     s = socket.socket(socket.AF_INET,socket.SOCK_STREAM) #socket generation
@@ -31,8 +29,10 @@ arguments = args() # grab arguments from CLI
 
 print(f"Scanning {arguments['host']} using {arguments['threads']} threads.")
 
-with ThreadPoolExecutor(max_workers=arguments['threads']) as executor:
-    futures = [executor.submit(port_scan,arguments['host'],p) for p in parse_ports(arguments)]
+start = time.time() #start timer
+
+with ThreadPoolExecutor(max_workers=arguments['threads']) as executor: 
+    futures = [executor.submit(port_scan,arguments['host'],p) for p in parse_ports(arguments)] # workers generator
     for future in futures:
         future.result()
 
